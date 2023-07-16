@@ -74,7 +74,7 @@ export default {
       let formdata = new FormData();
       formdata.append("files", $file);
       // 锁死页面
-      this.lockPage();
+      this.lockPage("上传中");
       try {
         const response = await fetch(this.$backendAPI.api.img_upload, {
           // mode: 'no-cors'
@@ -117,10 +117,10 @@ export default {
     documentTitle() {
       document.title = this.note.title;
     },
-    lockPage() {
+    lockPage(message) {
       this.loading = this.$loading({
         lock: true,
-        text: "Loading",
+        text: message,
         spinner: "el-icon-loading",
         background: "rgba(0, 0, 0, 0.7)",
       });
@@ -133,7 +133,7 @@ export default {
       // 删除笔记
       const url = this.$backendAPI.api.note_delete + "?id=" + this.note.id;
       // 锁死页面
-      this.lockPage();
+      this.lockPage("删除中");
       try {
         await this.$fetch.fetchCheckErrno(url, "GET", "");
         this.$toast.success("删除成功");
