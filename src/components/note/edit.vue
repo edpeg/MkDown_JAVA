@@ -51,7 +51,7 @@ export default {
       this.note.content = data.content;
       this.note.title = data.title;
       document.title = this.note.title;
-      // 排除上面赋值造成mkdonw编辑器的change回调事件
+      // 排除上面赋值造成mavon-editor编辑器的change回调事件
       this.changeCounter = -1;
     },
     async saveNote(value, render) {
