@@ -19,10 +19,7 @@ export function warning(message) {
 
 // 根据错误码判断弹窗内容
 export function warningWithCode(message, error_code) {
-    if (error_code == BackEndCode.USER_NOT_LOGIN) {
-        return
-    }
-    if (error_code > BackEndCode.USER_NOT_LOGIN && error_code < BackEndCode.QI_NIU_FILE_UPLOAD_FALL) {
+    if (error_code >= BackEndCode.USER_NOT_LOGIN && error_code < BackEndCode.QI_NIU_FILE_UPLOAD_FALL) {
         warning(message)
         return
     }

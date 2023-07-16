@@ -66,8 +66,8 @@ async function fetchCheckLogin(url, method, data) {
           redirect: redirect
         }
       })
-      throw new MkdownNoteError("用户未登录", BackEndCode.USER_NOT_LOGIN)
     }
+    throw new MkdownNoteError("用户未登录", BackEndCode.USER_NOT_LOGIN)
   }
   // 非未登录状态(已登录||其他code异常状态||已在登录页) 返回数据
   return result
