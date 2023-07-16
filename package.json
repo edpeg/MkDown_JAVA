@@ -1,0 +1,28 @@
+{
+  "name": "mkdown-vue3",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "start": "npm run dev  -- --host 127.0.0.1 --port 8082",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "element-plus": "^2.3.6",
+    "loglevel": "^1.8.1",
+    "mavon-editor": "^3.0.1",
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.2"
+  },
+  "devDependencies": {
+    "@iconify-json/ep": "^1.1.11",
+    "@iconify-json/ic": "^1.1.13",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "js-md5": "^0.7.3",
+    "unplugin-auto-import": "^0.16.6",
+    "unplugin-icons": "^0.16.3",
+    "unplugin-vue-components": "^0.25.1",
+    "vite": "^4.3.9"
+  }
+}
