@@ -7,8 +7,8 @@
 * 支持笔记关键字搜索与高亮展示
 
 ## 预览图
-![登录页面](readme\login.png)
-![笔记页面](readme\note.png)
+![登录页面](readme/login.png)
+![笔记页面](readme/note.png)
 
 ## 编译部署
 ### 安装依赖
