@@ -27,6 +27,7 @@ export const router = createRouter({
                 {
                     //注册页
                     path: 'register',
+                    name: 'register',
                     component: register,
                     meta: { title: "注册" }
                 }, {
