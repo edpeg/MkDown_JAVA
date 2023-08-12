@@ -1,6 +1,8 @@
 <script>
 // 笔记预览页
 import { ElMessageBox } from "element-plus";
+import { log } from '../../utils/log.js'
+import { nextTick } from 'vue'
 
 export default {
   name: "index",
@@ -8,7 +10,10 @@ export default {
     return {
       // 搜索框放大镜图标
       IEpSearch,
+      // 笔记列表
       notes: [],
+      // fetchNotes fetch返回未经处理的列表
+      fetchNotes: [],
       // 搜索笔记输入框内容
       q: sessionStorage.getItem("q"),
       // 页面标题
@@ -24,6 +29,58 @@ export default {
     this.selectUserAllNote(); // 需要触发的函数
   },
   methods: {
+    async setNoteTileLength() {
+      // 获取笔记列表宽度
+      const noteListLength = document.getElementById("noteList").offsetWidth - 40;
+      log.debug("当前笔记列表宽度 " + noteListLength)
+      log.debug("notes 长度 :" + this.notes.length)
+      // 循环处理
+      for (let i = 0; i < this.notes.length; i++) {
+        // 获取当前笔记标题宽度
+        let noteTileWidth = document.getElementById(this.notes[i].id).offsetWidth;
+        log.debug("当前笔记标题宽度 " + noteListLength)
+        // 判断是否越界
+        if (noteTileWidth > noteListLength) {
+          let note = this.notes[i];
+          while (true) {
+            // 获取当前笔记标题宽度  (修改dom后需重新获取新的)
+            noteTileWidth = document.getElementById(this.notes[i].id).offsetWidth;
+            log.debug("修改后笔记标题宽度 " + noteTileWidth)
+            if (noteTileWidth > noteListLength) {
+              // 标题越界
+              log.debug("cutPutTitle   :" + note.cutPutTitle)
+              // log.debug(note.cutPutTitle.length)
+              log.debug(note.cutPutTitle.substring(0, note.cutPutTitle.length - 1))
+              // 标题字符数-1
+              note.cutPutTitle = note.cutPutTitle.substring(0, note.cutPutTitle.length - 1);
+              this.notes.splice(i, 1, note)
+              // 修改dom
+              await nextTick()
+              // break;
+            } else {
+              // 标题已符合宽度限制  追加省略符号"..."
+              if (/[A-Za-z`~!@#$%^&*()_\-+=<>?:"{}|,.\/;'\\[\]·~！@#￥%……&*（）——\-+={}|《》？：“”【】、；‘'，。、]/im.test(note.cutPutTitle.substring(note.cutPutTitle.length - 1, note.cutPutTitle.length))) {
+                // 标题以字母或特殊符号结尾
+                log.debug("标题以字母或特殊符号结尾")
+                note.cutPutTitle = note.cutPutTitle.substring(0, note.cutPutTitle.length - 2) + "...";
+
+              } else {
+                // 标题以汉字结尾
+                log.debug("标题以汉字结尾")
+                note.cutPutTitle = note.cutPutTitle.substring(0, note.cutPutTitle.length - 1) + "...";
+              }
+              this.notes.splice(i, 1, note)
+              // 修改dom
+              await nextTick()
+              log.debug("长度达标：" + note.cutPutTitle)
+              log.debug("最后笔记标题宽度 " + document.getElementById(this.notes[i].id).offsetWidth);
+              break;
+            }
+            // log.debug(note)
+          }
+        }
+      }
+    },
     // 初始化页面
     async selectUserAllNote() {
       document.title = "首页";
@@ -32,14 +89,25 @@ export default {
         "GET",
         ""
       );
-      const notes = data.noteList;
+      this.fetchNotes = data.noteList;
       // 循环对笔记进行操作
       // 笔记列表置空
       this.notes = [];
-      notes.forEach((note) => {
+
+      this.fetchNotes.forEach((note) => {
+
+
         // 写入笔记内容
-        this.notes.push({ title: note.title, id: note.id, content: note.content });
+        // if(note.title.length > noteListLength){
+        //   const cutPutTitle = note.title.substr (0,noteListLength)+"...";
+        //   this.notes.push({ cutPutTitle: cutPutTitle,title: note.title, id: note.id, content: note.content });
+        // }else{
+        //   this.notes.push({ cutPutTitle: note.title,title: note.title, id: note.id, content: note.content });
+        // }
+        this.notes.push({ cutPutTitle: note.title, title: note.title, id: note.id, content: note.content });
       });
+      await nextTick()
+      this.setNoteTileLength();
     },
     // 设置noteSelect组件展示笔记内容
     selectNote(note) {
@@ -80,6 +148,10 @@ export default {
         ""
       );
       this.$toast.success("退出成功");
+      // 清空sessionStorage缓存数据
+      sessionStorage.clear()
+      // 清空localStorage缓存数据
+      localStorage.clear()
       // 跳转页面到登录页
       this.$router.push({ path: "/passport/login" });
     },
@@ -105,6 +177,10 @@ export default {
         ""
       );
       this.$toast.success("注销成功");
+      // 清空sessionStorage缓存数据
+      sessionStorage.clear()
+      // 清空localStorage缓存数据
+      localStorage.clear()
       // 跳转页面到登录页
       this.$router.push({ path: "/passport/login" });
     },
@@ -120,7 +196,7 @@ export default {
 <template>
   <div class="common-layout">
     <el-container style="height: 100vh">
-      <el-aside style="
+      <el-aside id="noteList" style="
           text-align: left;
           height: 100%;
           width: 15%;
@@ -142,18 +218,20 @@ export default {
             border-right-style: solid;
           ">
           <el-scrollbar always="false" height="100%" wrap-style="overflow-y:auto;">
-            <el-menu width="15%" :default-openeds="['1', '3']" style="height: 100%; overflow-x: hidden">
+            <el-menu :default-openeds="['1', '3']" style="height: 100%; overflow-x: hidden">
               <el-sub-menu index="1">
                 <template #title>
                   <el-icon> <i-ep-notebook /> </el-icon>笔记
                 </template>
                 <el-menu-item-group id="note">
                   <el-menu-item v-for="note in notes" :key="note.id" @click="selectNote(note)">
-                    <el-tooltip class="box-item" :show-after="800" :hide-after="800" :disabled="disabled" effect="light"
-                      placement="top-start">
-                      <template #content>{{ note.title }}</template>
-                      {{ note.title }}
-                    </el-tooltip>
+                    <div :id="note.id">
+                      <el-tooltip class="box-item" :show-after="800" :hide-after="800" :disabled="disabled" effect="light"
+                        placement="top-start">
+                        <template #content>{{ note.title }}</template>
+                        {{ note.cutPutTitle }}
+                      </el-tooltip>
+                    </div>
                   </el-menu-item>
                 </el-menu-item-group>
               </el-sub-menu>
@@ -203,6 +281,10 @@ export default {
 </template>
 
 <style>
+.el-menu-item {
+  font-size: 13px;
+}
+
 .el-header {
   position: relative;
   background-color: #f1f1f3;
