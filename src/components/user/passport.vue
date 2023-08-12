@@ -10,12 +10,12 @@ export default {
     // 清空localStorage缓存数据
     localStorage.clear()
 
-    // 判断用户是否已经登录
-    const result = await this.$fetch.diyFetchCheckStatus(this.$backendAPI.api.passport_isLogin, 'GET', '')
-    if (result.code != BackEndCode.SUCCESS) {
-      return
-    }
-    gotoNext(this);
+    // // 判断用户是否已经登录
+    // const result = await this.$fetch.diyFetchCheckStatus(this.$backendAPI.api.passport_isLogin, 'GET', '')
+    // if (result.code != BackEndCode.SUCCESS) {
+    //   return
+    // }
+    // gotoNext(this);
   }
 }
 </script>
