@@ -22,6 +22,10 @@ export default {
   mounted() {
     //光标锁定
     this.$refs.inputName.focus();
+
+    // 设置默认账户
+    this.loginForm.userName = "demo"
+    this.loginForm.password = "123456"
   },
   methods: {
     // 登录操作
