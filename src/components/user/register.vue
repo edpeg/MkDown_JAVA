@@ -117,6 +117,7 @@ export default {
           // 显示后端响应的失败信息
           this.$toast.warning(result.message)
           this.$log.warn(":注册失败,异常编码为  " + result.code);
+          return;
         }
 
         // 显示后端响应的成功信息
