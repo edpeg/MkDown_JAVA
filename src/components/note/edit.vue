@@ -1,5 +1,5 @@
 <script>
-import { ElMessageBox } from "element-plus";
+import { ElMessageBox, ElNotification } from "element-plus";
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
 import { MkdownNoteError, BackEndCode } from "../../utils/MkdownNoteErrro.js";
@@ -37,6 +37,18 @@ export default {
     this.note.id = this.noteId;
     // 需要触发的函数
     this.selectNote(this.note.id);
+
+    ElNotification.success({
+      title: '提示',
+      message: '👈这里是笔记导航栏，可点击展开或关闭',
+      duration: 3000,
+      offset: 20,
+    })
+    setTimeout(() => {
+      this.$refs.md.s_navigation = true
+      this.$refs.md.toolbar_right_click("navigation")
+      // toolbar_right_click("navigation",this.$refs.md)
+    }, 3000)
   },
   methods: {
     // ctrl+s  触发函数
@@ -53,6 +65,7 @@ export default {
       document.title = this.note.title;
       // 排除上面赋值造成mavon-editor编辑器的change回调事件
       this.changeCounter = -1;
+
     },
     async saveNote(value, render) {
       // 保存笔记内容
@@ -159,7 +172,7 @@ export default {
           "确认退出吗？退出后将不保存修改(CTRL+S保存笔记)",
           "警告",
           {
-            confirmButtonText: "确定",
+            confirmButtonText: "不保存",
             cancelButtonText: "取消",
           }
         );
@@ -203,29 +216,43 @@ window.addEventListener(
 </script>
 
 <template>
-  <div style="height: 100%" class="hello" id="main">
-    <div style="text-align: left; width: 100%">
+  <div id="12" style="height: 100%;width: 100%">
+    <div style="height: 10%;text-align: left; width: 100%">
       <input @input="documentTitle" id="title" v-model="note.title" placeholder="请输入标题" />
       <el-button color="#79bbff" class="editButton" type="primary" @click="confirmDelete"
         v-if="note.id != 0">删除笔记</el-button>
       <el-button color="#79bbff" class="editButton" type="primary" @click="goBack">返回</el-button>
     </div>
-    <mavon-editor style="min-height: 700px" ref="md" @imgAdd="imgAdd" v-model="note.content" @change="saveCallback"
-      navigation="true"></mavon-editor>
+    <div style="height: 90%;width: 100%;overflow-y:hidden">
+      <mavon-editor style="height: 100%;width: 100%" ref="md" @imgAdd="imgAdd" v-model="note.content"
+        @change="saveCallback" navigation scrollStyle></mavon-editor>
+    </div>
   </div>
 </template>
 
 <style>
+.el-notification {
+  width: 11%;
+}
+
+.el-notification__content {
+  position: relative;
+  left: -50%;
+  width: 190%;
+}
+
 #title {
   width: 70%;
   color: #000000;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  bottom: 5%;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 3em;
-  height: 50px;
+  font-size: 2em;
+  float: left;
+  margin-top: 1%;
+  margin-bottom: 15px;
+  /* height: 20%; */
 }
 
 #title[type="text"]:focus {
