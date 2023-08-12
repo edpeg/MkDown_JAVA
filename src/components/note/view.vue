@@ -1,6 +1,8 @@
 <script>
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
+import { ElLoading } from 'element-plus'
+import { log } from '../../utils/log.js'
 
 export default {
   name: "noteView",
@@ -13,6 +15,7 @@ export default {
       mavonEditor: "",
       // 笔记标题
       title: "",
+      loading: null,
     };
   },
   mounted() {
@@ -29,14 +32,22 @@ export default {
   },
   methods: {
     async showNote(id) {
-      // 设置URL
-      const url = this.$backendAPI.api.note_info + "?id=" + id;
-      // 查询笔记
-      const data = await this.$fetch.fetchCheckErrno(url, "GET", "");
-      // 在mavonEditor中写入笔记内容
-      this.mavonEditor = data.content;
-      // 展示笔记标题
-      this.title = data.title;
+      log.debug("view  触发 showNote")
+      this.lockPage("查询中");
+      try {
+        // 设置URL
+        const url = this.$backendAPI.api.note_info + "?id=" + id;
+        // 查询笔记
+        const data = await this.$fetch.fetchCheckErrno(url, "GET", "");
+        // 在mavonEditor中写入笔记内容
+        this.mavonEditor = data.content;
+        // 展示笔记标题
+        this.title = data.title;
+      } finally {
+        this.unlockPage();
+      }
+
+
     },
     edit() {
       // 跳转页面到编辑页
@@ -47,6 +58,23 @@ export default {
         },
       });
     },
+    lockPage(message) {
+      // this.loading = this.$loading({
+      //   lock: true,
+      //   text: message,
+      //   spinner: "el-icon-loading",
+      //   background: "rgba(0, 0, 0, 0.7)",
+      // });
+      this.loading = ElLoading.service({
+        lock: true,
+        text: message,
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+
+    },
+    unlockPage() {
+      this.loading.close();
+    }
   },
 };
 </script>
