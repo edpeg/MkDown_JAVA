@@ -3,6 +3,7 @@ import { ElMessageBox, ElNotification } from "element-plus";
 import { mavonEditor } from "mavon-editor";
 import "mavon-editor/dist/css/index.css";
 import { MkdownNoteError, BackEndCode } from "../../utils/MkdownNoteErrro.js";
+import { log } from '../../utils/log.js'
 
 export default {
   name: "noteEdit",
@@ -38,17 +39,29 @@ export default {
     // 需要触发的函数
     this.selectNote(this.note.id);
 
-    ElNotification.success({
-      title: '提示',
-      message: '👈这里是笔记导航栏，可点击展开或关闭',
-      duration: 3000,
-      offset: 20,
-    })
-    setTimeout(() => {
-      this.$refs.md.s_navigation = true
-      this.$refs.md.toolbar_right_click("navigation")
-      // toolbar_right_click("navigation",this.$refs.md)
-    }, 3000)
+    if (!localStorage.getItem("NavigationBarHint")) {
+      ElNotification.success({
+        title: '提示',
+        message: '👈这里是笔记导航栏，可点击展开或关闭。点击此窗口则以后不在提示',
+        duration: 300000,
+        offset: 20,
+        showClose: false,
+        customClass: this.edit.hint,
+        onClick: () => {
+          log.debug(ElNotification)
+          ElNotification.closeAll()
+          log.debug("NavigationBarHint 不再提示导航栏位置");
+          localStorage.setItem("NavigationBarHint", true);
+        },
+      })
+
+      setTimeout(() => {
+        this.$refs.md.s_navigation = true
+        this.$refs.md.toolbar_right_click("navigation")
+        // toolbar_right_click("navigation",this.$refs.md)
+      }, 3000)
+    }
+
   },
   methods: {
     // ctrl+s  触发函数
@@ -69,7 +82,8 @@ export default {
     },
     async saveNote(value, render) {
       // 保存笔记内容
-      this.note.content = value;
+      // this.note.content = value;
+      log.debug("笔记内容： " + this.note.content);
       const data = await this.$fetch.fetchCheckErrno(
         this.$backendAPI.api.note_save,
         "POST",
@@ -172,11 +186,21 @@ export default {
           "确认退出吗？退出后将不保存修改(CTRL+S保存笔记)",
           "警告",
           {
-            confirmButtonText: "不保存",
-            cancelButtonText: "取消",
+            distinguishCancelAndClose: true,
+            confirmButtonText: "保存",
+            cancelButtonText: "不保存",
+            showClose: true,
+          },
+        ).then(() => {
+          this.saveNote()
+          this.skipNoteView();
+        }).catch((err) => {
+          log.debug("err")
+          log.debug(err)
+          if (err == "cancel") {
+            this.skipNoteView();
           }
-        );
-        this.skipNoteView();
+        });
       } else {
         this.skipNoteView();
       }
@@ -225,22 +249,23 @@ window.addEventListener(
     </div>
     <div style="height: 90%;width: 100%;overflow-y:hidden">
       <mavon-editor style="height: 100%;width: 100%" ref="md" @imgAdd="imgAdd" v-model="note.content"
-        @change="saveCallback" navigation scrollStyle></mavon-editor>
+        @change="saveCallback" ishljs navigation scrollStyle></mavon-editor>
     </div>
   </div>
 </template>
 
-<style>
-.el-notification {
+<style module="edit">
+.hint {
   width: 11%;
 }
 
-.el-notification__content {
+.hint div div {
   position: relative;
   left: -50%;
   width: 190%;
 }
-
+</style>
+<style>
 #title {
   width: 70%;
   color: #000000;
