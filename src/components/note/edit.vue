@@ -43,7 +43,7 @@ export default {
       ElNotification.success({
         title: '提示',
         message: '👈这里是笔记导航栏，可点击展开或关闭。点击此窗口则以后不在提示',
-        duration: 300000,
+        duration: 3000,
         offset: 20,
         showClose: false,
         customClass: this.edit.hint,
