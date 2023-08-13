@@ -3,6 +3,7 @@
 import { ElMessageBox } from "element-plus";
 import { log } from '../../utils/log.js'
 import { nextTick } from 'vue'
+import headPortrait from "../../assets/image/headPortrait.jpg"
 
 export default {
   name: "index",
@@ -10,6 +11,7 @@ export default {
     return {
       // 搜索框放大镜图标
       IEpSearch,
+      IEpuserFilled,
       // 笔记列表
       notes: [],
       // fetchNotes fetch返回未经处理的列表
@@ -18,6 +20,7 @@ export default {
       q: sessionStorage.getItem("q"),
       // 页面标题
       title: "",
+      headPortrait:headPortrait
     };
   },
   mounted() {
@@ -108,6 +111,7 @@ export default {
       });
       await nextTick()
       this.setNoteTileLength();
+      // this.selectNote(this.notes[0]);
     },
     // 设置noteSelect组件展示笔记内容
     selectNote(note) {
@@ -226,7 +230,7 @@ export default {
                 <el-menu-item-group id="note">
                   <el-menu-item v-for="note in notes" :key="note.id" @click="selectNote(note)">
                     <div :id="note.id">
-                      <el-tooltip class="box-item" :show-after="800" :hide-after="800" :disabled="disabled" effect="light"
+                      <el-tooltip class="box-item" :show-after="800" :disabled="disabled" effect="light"
                         placement="top-start">
                         <template #content>{{ note.title }}</template>
                         {{ note.cutPutTitle }}
@@ -253,9 +257,11 @@ export default {
                 line-height: 60px;
                 margin-top: 15px;
               ">
-              <el-icon style="margin-right: 8px; margin-top: 1px">
-                <i-ep-setting />
-              </el-icon>
+              <!-- <el-icon style="margin-right: 8px; margin-top: 1px">
+                <i-ep-user-filled />
+              </el-icon> -->
+              <!-- <img src="../../assets/image/headPortrait.jpg" style="height: 3%;width:3%;"> -->
+              <el-avatar shape="square" :size="default" :src="headPortrait" style="margin-right: 8px; margin-top: -4px" />
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item @click="this.logOut">登出</el-dropdown-item>
