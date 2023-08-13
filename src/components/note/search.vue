@@ -1,4 +1,7 @@
 <script>
+import { ElLoading } from 'element-plus'
+import { log } from '../../utils/log.js'
+
 export default {
   name: 'noteSearch',
   data() {
@@ -6,11 +9,13 @@ export default {
       // 笔记列表
       notes: [],
       // 搜索笔记输入框内容
-      q: sessionStorage.getItem("q")
+      q: sessionStorage.getItem("q"),
+      isSelectResult: false
     }
   },
   mounted() {
     // 页面初始化函数
+    log.debug("初始化搜索页 ")
     this.search()
   },
   async beforeRouteUpdate(to, from) {
@@ -33,24 +38,42 @@ export default {
     },
     // 初始化页面
     async search() {
-      document.title = '查询——' + this.q;
-      // es查询笔记
-      // TODO 用uriencode进行编码转义，避免包含特殊字符
-      const url = this.$backendAPI.api.note_search + '?q=' + this.q
-      const data = await this.$fetch.fetchCheckErrno(url, 'GET', '')
-      if (data.noteList == null) {
-        return
+      this.lockPage("搜索中...");
+      try {
+        document.title = '查询——' + this.q;
+        // es查询笔记
+        // TODO 用uriencode进行编码转义，避免包含特殊字符
+        const url = this.$backendAPI.api.note_search + '?q=' + this.q
+        const data = await this.$fetch.fetchCheckErrno(url, 'GET', '')
+        if (data.noteList == null) {
+          this.isSelectResult = true;
+          return
+        }
+        // 置空原来的笔记列表
+        this.notes = []
+        const notes = data.noteList
+        log.debug("搜索结果长度: ")
+        // 循环获取笔记内容
+        notes.forEach(note => {
+          // 写入笔记列表
+          this.notes.push({ title: note.title, id: note.id, content: note.content })
+        });
+      } finally {
+        this.unlockPage();
       }
-      // 置空原来的笔记列表
-      this.notes = []
-      const notes = data.noteList
-      
-      // 循环获取笔记内容
-      notes.forEach(note => {
-        // 写入笔记列表
-        this.notes.push({ title: note.title, id: note.id, content: note.content })
-      });
+
     },
+    lockPage(message) {
+      this.loading = ElLoading.service({
+        lock: true,
+        text: message,
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
+
+    },
+    unlockPage() {
+      this.loading.close();
+    }
   }
 }
 </script>
@@ -60,7 +83,7 @@ export default {
     <el-container style="width:100%;height:100%">
       <el-aside style="width:100%;height:100%">
         <el-menu style="width:100%;height:100%">
-          <div v-if="notes == 0" class="note" style="width:100%;text-align:center;top: 40%;position: relative;">
+          <div v-if="isSelectResult" class="note" style="width:100%;text-align:center;top: 40%;position: relative;">
             <em>未找到结果</em>
           </div>
           <div v-else style="text-align:left;margin-left: 20px;">
