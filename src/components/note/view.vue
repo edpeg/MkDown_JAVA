@@ -33,7 +33,7 @@ export default {
   methods: {
     async showNote(id) {
       log.debug("view  触发 showNote")
-      this.lockPage("查询中");
+      this.lockPage("正在努力查询");
       try {
         // 设置URL
         const url = this.$backendAPI.api.note_info + "?id=" + id;
@@ -98,6 +98,6 @@ export default {
       </div>
     </div>
     <mavon-editor ref="md" :subfield="false" :defaultOpen="'preview'" :editable="false" :toolbarsFlag="false"
-      v-model="mavonEditor" style="flex: 1000 1000 auto"></mavon-editor>
+      v-model="mavonEditor" style="flex: 1000 1000 auto" ishljs></mavon-editor>
   </div>
 </template>
